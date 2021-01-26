@@ -1,4 +1,4 @@
-# University of Auckland --> Part IV Project 
+# University of Auckland :tada: Part IV Project 
 ## Real-Time Face Recognition System using Modular Miniaturized Computer and Deep Neural Network
 This research project aims at building a stand-alone hardware system that runs deep neural network learning models for real-time face recognition applications.
 
