@@ -1,0 +1,6 @@
+name: first-opencv
+channels:
+  - defaults
+dependencies:
+  - opencv
+prefix: /home/erik/anaconda3/envs/first-opencv
