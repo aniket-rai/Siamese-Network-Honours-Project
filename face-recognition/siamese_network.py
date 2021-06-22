@@ -12,14 +12,14 @@ class SiameseNetwork(nn.Module):
       nn.ReLU(),
       nn.LocalResponseNorm(size=5, k=2, alpha=1e-04, beta=0.75),
       nn.MaxPool2d(2, stride=2), # [120, 120]
-      nn.Conv2d(96, 256, kernel=5, padding=2), # [116, 116]
+      nn.Conv2d(96, 256, kernel_size=5, padding=2), # [116, 116]
       nn.ReLU(),
       nn.LocalResponseNorm(size=5, k=2, alpha=1e-4, beta=0.75),
       nn.MaxPool2d(2, stride=2), # [58, 58]
       nn.Dropout2d(p=0.3),
-      nn.Conv2d(256, 384, kernel=3, padding=1), # [56, 56]
+      nn.Conv2d(256, 384, kernel_size=3, padding=1), # [56, 56]
       nn.ReLU(),
-      nn.Conv2d(384, 256, kernel=3, padding=1), # [54, 54]
+      nn.Conv2d(384, 256, kernel_size=3, padding=1), # [54, 54]
       nn.MaxPool2d(2, stride=2), # [27, 27]
       nn.Dropout2d(p=0.3),
       nn.Flatten(), # [27*27*256]
@@ -29,7 +29,7 @@ class SiameseNetwork(nn.Module):
     )
 
   def forward(self, input_1, input_2):
-    output_1 = self.model(input_1)
-    output_2 = self.model(input_2)
+    output_1 = self.model(input_1.permute(0, 3, 1, 2).float())
+    output_2 = self.model(input_2.permute(0, 3, 1, 2).float())
   
     return output_1, output_2

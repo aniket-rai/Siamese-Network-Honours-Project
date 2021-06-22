@@ -2,7 +2,6 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from torch import permute
 from torchvision.io import read_image
 
 # -----------------------------------
