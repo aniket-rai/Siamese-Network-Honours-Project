@@ -131,3 +131,6 @@ dmypy.json
 # gitpod eslint
 .eslintcache 
 .vscode/settings.json
+*.jpg
+face-recognition/lfw/train.txt
+face-recognition/lfw/test.txt
