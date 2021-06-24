@@ -15,11 +15,11 @@ def train(model, optimiser, train_loader, val_loader, epochs, criterion):
 
     for img1, img2, labels in train_loader:
       # Forward
-      img1 = img1.to(device)
-      img2 = img2.to(device)
-      labels = labels.to(device)
-      outputs = model(img1, img2)
-      loss = criterion(outputs, labels)
+      img1 = img1
+      img2 = img2
+      labels = labels
+      out1, out2 = model(img1, img2)
+      loss = criterion(out1, out2, labels)
       
       # Backward and optimize
       optimiser.zero_grad()

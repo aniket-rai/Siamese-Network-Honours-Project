@@ -1,15 +1,19 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from PIL import Image
 
 from torchvision.io import read_image
-
+import torchvision.transforms as T
 # -----------------------------------
 # MASTER DATASET - LFW
 # -----------------------------------
 class LFW:
   def __init__(self):
     self.img_dir = "lfw"
+    self.transform = T.Compose([
+      T.ToTensor()
+    ])
     self.target_transform = _label_target_transform
     self.img_labels = _get_image_labels(self.img_dir);
 
@@ -30,6 +34,9 @@ class LFW:
 class LFW_Train:
   def __init__(self):
     self.img_dir = "lfw"
+    self.transform = T.Compose([
+      T.ToTensor()
+    ])
     self.target_transform = _label_target_transform
     self.img_labels = _generate_data(0);
 
@@ -40,8 +47,11 @@ class LFW_Train:
     img_path_0 = os.path.join(self.img_dir, _get_image_path(self.img_labels[idx][0]))
     img_path_1 = os.path.join(self.img_dir, _get_image_path(self.img_labels[idx][1]))
 
-    image1 = read_image(img_path_0).permute(1,2,0)
-    image2 = read_image(img_path_1).permute(1,2,0)
+    image1 = Image.open(img_path_0)
+    image2 = Image.open(img_path_1)
+
+    image1 = self.transform(image1)
+    image2 = self.transform(image2)
 
     label = self.img_labels[idx][2]
 
@@ -53,17 +63,25 @@ class LFW_Train:
 class LFW_Test:
   def __init__(self):
     self.img_dir = "lfw"
+    self.transform = T.Compose([
+      T.ToTensor()
+    ])
     self.target_transform = _label_target_transform
-    self.img_labels = _generate_data(1)
+    self.img_labels = _generate_data(1);
 
   def __len__(self):
     return len(self.img_labels)
 
   def __getitem__(self, idx):
-    img_path = os.path.join(self.img_dir, _get_image_path(self.img_labels[idx]))
-    
-    image1 = read_image(img_path[0]).permute(1,2,0)
-    image2 = read_image(img_path[1]).permute(1,2,0)
+    img_path_0 = os.path.join(self.img_dir, _get_image_path(self.img_labels[idx][0]))
+    img_path_1 = os.path.join(self.img_dir, _get_image_path(self.img_labels[idx][1]))
+
+    image1 = Image.open(img_path_0)
+    image2 = Image.open(img_path_1)
+
+    image1 = self.transform(image1)
+    image2 = self.transform(image2)
+
     label = self.img_labels[idx][2]
 
     return image1, image2, label
@@ -127,7 +145,7 @@ def _generate_data(train_or_test):
     pos_1 = f"{pair[1]:{padding}>{length}}"
     pos_2 = f"{pair[2]:{padding}>{length}}"
 
-    data = [f"{name}_{pos_1}.jpg", f"{name}_{pos_2}.jpg", True]
+    data = [f"{name}_{pos_1}.jpg", f"{name}_{pos_2}.jpg", 1.0]
 
     test_data.append(data)
       
@@ -140,7 +158,7 @@ def _generate_data(train_or_test):
     pos_1 = f"{pair[1]:{padding}>{length}}"
     pos_2 = f"{pair[3]:{padding}>{length}}"
     
-    data = [f"{name_1}_{pos_1}.jpg", f"{name_2}_{pos_2}.jpg", False]
+    data = [f"{name_1}_{pos_1}.jpg", f"{name_2}_{pos_2}.jpg", 0.0]
 
     test_data.append(data)
   

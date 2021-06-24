@@ -18,7 +18,7 @@ train_dataloader = DataLoader(lfw_train, batch_size=64, shuffle=True)
 test_dataloader = DataLoader(lfw_test, batch_size=64, shuffle=True)
 
 network = SiameseNetwork()
-loss_function = ContrastiveLoss(alpha=1, beta=1, margin=1).to(device)
+loss_function = ContrastiveLoss().to(device)
 optimiser = torch.optim.RMSprop(network.parameters(), lr=1e-05, eps=1e-8, weight_decay=5e-4, momentum=0.9)
 epochs = 1
 
