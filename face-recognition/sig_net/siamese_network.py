@@ -7,8 +7,8 @@ class SiameseNetwork(nn.Module):
   def __init__(self):
     super(SiameseNetwork, self).__init__()
     self.model = nn.Sequential(
-      # input = [250,250,3]
-      nn.Conv2d(3, 96, kernel_size=11), # [240, 240]
+      # input = [250,250,1]
+      nn.Conv2d(1, 96, kernel_size=11), # [240, 240]
       nn.ReLU(),
       nn.LocalResponseNorm(size=5, k=2, alpha=1e-04, beta=0.75),
       nn.MaxPool2d(2, stride=2), # [120, 120]
@@ -25,7 +25,7 @@ class SiameseNetwork(nn.Module):
       nn.Flatten(), # [27*27*256] mismatch; now using [30*30*256]
       nn.Linear(230400, 1024),
       nn.Dropout2d(p=0.5),
-      nn.Linear(1024,128)
+      nn.Linear(1024,256)
     )
 
   def forward(self, input_1, input_2):

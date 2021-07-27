@@ -5,37 +5,17 @@ from PIL import Image
 
 from torchvision.io import read_image
 import torchvision.transforms as T
-# -----------------------------------
-# MASTER DATASET - LFW
-# -----------------------------------
-class LFW:
-  def __init__(self):
-    self.img_dir = "lfw"
-    self.transform = T.Compose([
-      T.ToTensor()
-    ])
-    self.target_transform = _label_target_transform
-    self.img_labels = _get_image_labels(self.img_dir);
-
-  def __len__(self):
-    return len(self.img_labels)
-
-  def __getitem__(self, idx):
-    img_path = os.path.join(self.img_dir, _get_image_path(self.img_labels[idx]))
-    
-    image = read_image(img_path).permute(1,2,0)
-    label = self.target_transform(self.img_labels[idx])
-
-    return image, label
 
 # -----------------------------------
 # MASTER DATASET - LFW TRAIN
 # -----------------------------------
 class LFW_Train:
   def __init__(self):
-    self.img_dir = "lfw"
+    self.img_dir = "lfw_cropped"
     self.transform = T.Compose([
-      T.ToTensor()
+      T.Resize((250, 250)),
+      T.ToTensor(), 
+      T.Grayscale()
     ])
     self.target_transform = _label_target_transform
     self.img_labels = _generate_data(0);
@@ -62,9 +42,11 @@ class LFW_Train:
 # -----------------------------------
 class LFW_Test:
   def __init__(self):
-    self.img_dir = "lfw"
+    self.img_dir = "lfw_cropped"
     self.transform = T.Compose([
-      T.ToTensor()
+      T.Resize((250, 250)),
+      T.ToTensor(),
+      T.Grayscale()
     ])
     self.target_transform = _label_target_transform
     self.img_labels = _generate_data(1);
@@ -145,7 +127,7 @@ def _generate_data(train_or_test):
     pos_1 = f"{pair[1]:{padding}>{length}}"
     pos_2 = f"{pair[2]:{padding}>{length}}"
 
-    data = [f"{name}_{pos_1}.jpg", f"{name}_{pos_2}.jpg", 1.0]
+    data = [f"{name}_{pos_1}.jpg", f"{name}_{pos_2}.jpg", 0.0]
 
     test_data.append(data)
       
@@ -158,7 +140,7 @@ def _generate_data(train_or_test):
     pos_1 = f"{pair[1]:{padding}>{length}}"
     pos_2 = f"{pair[3]:{padding}>{length}}"
     
-    data = [f"{name_1}_{pos_1}.jpg", f"{name_2}_{pos_2}.jpg", 0.0]
+    data = [f"{name_1}_{pos_1}.jpg", f"{name_2}_{pos_2}.jpg", 1.0]
 
     test_data.append(data)
   
