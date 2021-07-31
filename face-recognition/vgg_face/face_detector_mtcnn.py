@@ -24,8 +24,9 @@ while True:
   except:
     pass
 
-  # cropped_frame = frame[anchor[1]:anchor[1]+height, anchor[0]:anchor[0]+width]
-
+  cropped_frame = frame[anchor[1]:anchor[1]+height, anchor[0]:anchor[0]+width]
+  plt.imshow(cropped_frame)
+  
   cv2.rectangle(frame, anchor, (anchor[0]+width, anchor[1]+height), (0, 255, 0), 2)
   cv2.imshow('Video Stream', frame)
 

@@ -6,15 +6,15 @@ from tensorflow.keras.applications.imagenet_utils import preprocess_input
 from tensorflow.keras.preprocessing import image
 
 def preprocess(img_path):
-  img = cv2.imread(img_path)
-  original_image = img.copy()
-
-  # detected face region
-  # region = detect_face(img)
+  if type(img_path) == str:
+    img = cv2.imread(img_path)
+  else:
+    img = img_path
 
   resize_factor = min(224/img.shape[0], 224/img.shape[1])
   new_size = (int(img.shape[1]*resize_factor), int(img.shape[0]*resize_factor))
   img = cv2.resize(img, new_size)
+  img = cv2.resize(img, (224, 224))
 
   img = np.expand_dims(image.img_to_array(img), axis=0)
   img /= 255 # normalise image

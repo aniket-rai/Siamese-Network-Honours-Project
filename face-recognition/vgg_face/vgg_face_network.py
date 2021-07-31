@@ -52,7 +52,7 @@ def VGGFace():
 	return model
 
 def load_network():
-  weights_path = "C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\vgg_face\\vgg_face.h5"
+  weights_path = "/Users/aniketrai/Desktop/part-iv-project/face-recognition/vgg_face/vgg_face.h5"
 
   base_model = VGGFace()
   base_model.load_weights(weights_path)

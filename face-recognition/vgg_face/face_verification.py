@@ -1,5 +1,5 @@
-from data_processing import preprocess
-from cosine_distance import find_cosine_distance
+from vgg_face.data_processing import preprocess
+from vgg_face.cosine_distance import find_cosine_distance
 
 def verify(img1, img2, model):
   img1 = preprocess(img1)
