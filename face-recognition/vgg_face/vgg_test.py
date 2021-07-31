@@ -22,4 +22,10 @@ for img1, img2, label in data:
   except:
     print(img1, img2)
 
-print(f"{correct}/{total} = {100*correct/total}%")
+print(f"{correct}/{total} = {100*correct/total:.2f}%")
+print(f"False Positives: {false_pos} | False Negatives: {false_neg}")
+
+# RESULTS FROM LAST RUN:
+# 2660/3199 = 83.15%
+# FALSE POSITIVES = 452
+# FALSE NEGATIVES = 87
