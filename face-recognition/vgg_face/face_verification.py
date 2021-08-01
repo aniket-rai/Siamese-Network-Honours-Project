@@ -5,8 +5,8 @@ def verify(img1, img2, model):
   img1 = preprocess(img1)
   img2 = preprocess(img2)
 
-  img1_embedding = model.predict(img1)[0].tolist()
-  img2_embedding = model.predict(img2)[0].tolist()
+  img1_embedding = embedding(img1, model)
+  img2_embedding = embedding(img2, model)
 
   distance = find_cosine_distance(img1_embedding, img2_embedding)
 
@@ -23,4 +23,12 @@ def verify(img1, img2, model):
 
   return verification_info
 
+def embedding(img, model):
+  return model.predict(preprocess(img))[0].tolist()
+
+def compare(embedding_1, embeddeding_2):
+  if find_cosine_distance(embedding_1, embeddeding_2) <= 0.4:
+    return True
+  else:
+    return False
 
