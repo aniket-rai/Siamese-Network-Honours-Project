@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from vgg_face.vgg_face_network import load_network
 from vgg_face.face_detector_opencv import detect_faces_cv
-from vgg_face.face_verification import embedding, compare
+from vgg_face.face_verification import init, embedding, compare
 
 # jetson nano limitations
 device = tf.config.list_physical_devices('GPU')
@@ -27,6 +27,10 @@ VGG_Face = load_network()
 last_save = 0
 last_face = embedding(np.random.default_rng(23).random((224, 224, 3)), VGG_Face)
 text = ""
+recognised = False
+
+# initialise
+faces = init(VGG_Face)
 
 while True:
   f_start = time.time()
@@ -37,6 +41,7 @@ while True:
   result = compare(face, last_face)
 
   if result:
+    print("recognised from last face")
     times = datetime.datetime.fromtimestamp(last_save)
     text = f"Last seen at {str(times)[:-10]}"
     if last_save > (last_save + 300):
@@ -45,15 +50,22 @@ while True:
       last_save = time.time()
       last_face = face
   else:
-    # if person is not the same as last person
-    # TODO: compare to all known faces (in images folder)
-    # else if not in any saved photos:
-    text = "Unrecognised - never seen before."
-    last_save = time.time()
-    last_face = face
-
-    f_name = f"C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\images\\{last_save}.png"
-    plt.imsave(f_name, face_img)
+    for t_stamp, f_emb in faces.items():
+      if compare(face, f_emb):
+        text = f"Last seen at {str(datetime.datetime.fromtimestamp(t_stamp))[:-10]}"
+        last_face = f_emb
+        recognised = True
+        last_save = t_stamp
+        print("recognised from embeddings")
+        break
+    
+    if not(recognised):
+      print("unrecognised")
+      text = "Unrecognised - never seen before."
+      last_save = time.time()
+      last_face = face
+      f_name = f"/Users/aniketrai/Desktop/part-iv-project/face-recognition/images/{last_save}.png"
+      plt.imsave(f_name, face_img)
   
   # Utility for adding text on image
   (text_width, text_height) = cv2.getTextSize(text, font, fontScale=font_scale, thickness=1)[0]
@@ -69,6 +81,7 @@ while True:
   
   # display frame
   cv2.imshow("Face", frame)
+  recognised = False
 
   # Break perma loop
   if cv2.waitKey(1) & 0xFF == ord('q'):
