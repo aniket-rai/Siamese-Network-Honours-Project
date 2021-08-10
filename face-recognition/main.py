@@ -6,9 +6,9 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from vgg_face.vgg_face_network import load_network
+from vgg_face.vgg_face_network import load_network_optimised
 from vgg_face.face_detector_opencv import detect_faces_cv
-from vgg_face.face_verification import init, embedding, compare
+from vgg_face.face_verification_optimised import init, embedding, compare
 
 # jetson nano limitations
 device = tf.config.list_physical_devices('GPU')
@@ -23,7 +23,7 @@ font = cv2.FONT_HERSHEY_PLAIN
 rectangle_bgr = (0, 0, 0)
 
 # vars
-VGG_Face = load_network()
+VGG_Face = load_network_optimised()
 last_save = 0
 last_face = embedding(np.random.default_rng(23).random((224, 224, 3)), VGG_Face)
 text = ""
@@ -64,7 +64,7 @@ while True:
       text = "Unrecognised - never seen before."
       last_save = time.time()
       last_face = face
-      f_name = f"/Users/aniketrai/Desktop/part-iv-project/face-recognition/images/{last_save}.png"
+      f_name = f"C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\images\\{last_save}.png"
       plt.imsave(f_name, face_img)
   
   # Utility for adding text on image

@@ -1,8 +1,19 @@
-import tensorflow as tf
+import os
 
-from data_processing import preprocess
-from data_processing import generate_data
-from cosine_distance import find_cosine_distance
+from vgg_face.data_processing import preprocess
+from vgg_face.cosine_distance import find_cosine_distance
+
+def init(model):
+  img_path = "C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\images"
+  files = os.listdir(img_path)
+  faces = {}
+
+  for file in files:
+    timestamp = float(file[:-4])
+    file = f"{img_path}/{file}"
+    faces[timestamp] = embedding(file, model)
+
+  return faces
 
 def embedding(img, interpreter):
   input_details = interpreter.get_input_details()

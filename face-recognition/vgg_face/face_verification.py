@@ -33,7 +33,7 @@ def compare(embedding_1, embeddeding_2):
     return False
 
 def init(model):
-  img_path = "/Users/aniketrai/Desktop/part-iv-project/face-recognition/images"
+  img_path = "C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\images"
   files = os.listdir(img_path)
   faces = {}
 
