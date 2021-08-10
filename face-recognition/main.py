@@ -2,16 +2,22 @@
 import cv2
 import time
 import datetime
-import matplotlib.pyplot as plt
 import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
 
 from vgg_face.vgg_face_network import load_network
 from vgg_face.face_detector_opencv import detect_faces_cv
 from vgg_face.face_verification import embedding, compare
 
+# jetson nano limitations
+device = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(device[0], True)
+tf.config.experimental.set_virtual_device_configuration(device[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
+
 # open cv
 video_cap = cv2.VideoCapture(0);
-faceCascade = cv2.CascadeClassifier("/Users/aniketrai/Desktop/part-iv-project/face-recognition/vgg_face/cascade.xml")
+faceCascade = cv2.CascadeClassifier("C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\vgg_face\\cascade.xml")
 font_scale = 1.5
 font = cv2.FONT_HERSHEY_PLAIN
 rectangle_bgr = (0, 0, 0)
@@ -46,7 +52,7 @@ while True:
     last_save = time.time()
     last_face = face
 
-    f_name = f"/Users/aniketrai/Desktop/part-iv-project/face-recognition/images/{last_save}.png"
+    f_name = f"C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\images\\{last_save}.png"
     plt.imsave(f_name, face_img)
   
   # Utility for adding text on image
