@@ -22,9 +22,9 @@ def preprocess(img_path):
   return img #, region
 
 def generate_data(mode):
-  train_file_name = "lfw\\train.txt"
-  test_file_name = "lfw\\test.txt"
-  all_file_name = "lfw\\all.txt"
+  train_file_name = "lfw/train.txt"
+  test_file_name = "lfw/test.txt"
+  all_file_name = "lfw/all.txt"
 
   if (mode == "train"):
     file_name = train_file_name
@@ -81,7 +81,7 @@ def _get_image_path(label):
   img_dir = "lfw_cropped"
   # img_dir = "lfw"
   
-  label = img_dir + "\\" + label[:-9] + "\\" + label
+  label = img_dir + "/" + label[:-9] + "/" + label
   return label
 
 def resize(img, width):

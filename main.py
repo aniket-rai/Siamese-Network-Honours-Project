@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+from imutils.video import VideoStream
 from vgg_face.vgg_face_network import load_network_optimised
 from vgg_face.face_detector_opencv import detect_faces_cv
 from vgg_face.face_verification_optimised import init, embedding, compare
@@ -16,30 +17,37 @@ tf.config.experimental.set_memory_growth(device[0], True)
 tf.config.experimental.set_virtual_device_configuration(device[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
 
 # open cv
-video_cap = cv2.VideoCapture(0);
-faceCascade = cv2.CascadeClassifier("C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\vgg_face\\cascade.xml")
-font_scale = 1.5
-font = cv2.FONT_HERSHEY_PLAIN
+video_cap = VideoStream(src=1).start();
+faceCascade = cv2.CascadeClassifier("/home/aniket/part-iv-project/face-recognition/vgg_face/cascade.xml")
+font_scale = 0.75
+font = cv2.FONT_HERSHEY_DUPLEX
 rectangle_bgr = (0, 0, 0)
 
 # vars
 VGG_Face = load_network_optimised()
 last_save = 0
-last_face = embedding(np.random.default_rng(23).random((224, 224, 3)), VGG_Face)
+last_face = embedding(np.zeros((224,224,3)), VGG_Face)
 text = ""
 recognised = False
 
 # initialise
 faces = init(VGG_Face)
+coords = [10, 30]
 
 while True:
   f_start = time.time()
-  face, frame, coords = detect_faces_cv(video_cap, faceCascade)
+  face, frame = detect_faces_cv(video_cap, faceCascade)
+  f_end = time.time()
+  print(f"Face Detection time: {f_end-f_start}")
 
   face_img = face.copy()
+
+  f_rec = time.time()
   face = embedding(face, VGG_Face)
   result = compare(face, last_face)
-
+  f_rec_c = time.time()
+  print(f"Face Recognition time: {f_rec_c-f_rec}")
+  
   if result:
     print("recognised from last face")
     times = datetime.datetime.fromtimestamp(last_save)
@@ -64,7 +72,7 @@ while True:
       text = "Unrecognised - never seen before."
       last_save = time.time()
       last_face = face
-      f_name = f"C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\images\\{last_save}.png"
+      f_name = f"/home/aniket/part-iv-project/face-recognition/images/{last_save}.png"
       plt.imsave(f_name, face_img)
   
   # Utility for adding text on image
@@ -73,7 +81,7 @@ while True:
   text_offset_y = coords[1]
   box_coords = ((text_offset_x, text_offset_y), (text_offset_x + text_width + 2, text_offset_y - text_height - 2))
   cv2.rectangle(frame, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
-  cv2.putText(frame, text, (text_offset_x, text_offset_y), font, fontScale=font_scale, color=(0, 255, 124), thickness=1)
+  cv2.putText(frame, text, (10, 30), font, fontScale=font_scale, color=(0, 255, 124), thickness=1)
 
   # end to end time
   f_end = time.time()
@@ -87,5 +95,5 @@ while True:
   if cv2.waitKey(1) & 0xFF == ord('q'):
     break
 
-video_cap.release()
+video_cap.stop()
 cv2.destroyAllWindows()

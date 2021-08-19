@@ -63,6 +63,6 @@ def load_network():
   return model
 
 def load_network_optimised():
-	interpreter = tf.lite.Interpreter("C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\vgg_face\\optimised_model")
+	interpreter = tf.lite.Interpreter("/home/aniket/part-iv-project/face-recognition/vgg_face/optimised_model")
 	interpreter.allocate_tensors()
 	return interpreter

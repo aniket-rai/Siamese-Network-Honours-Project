@@ -4,7 +4,7 @@ from vgg_face.data_processing import preprocess
 from vgg_face.cosine_distance import find_cosine_distance
 
 def init(model):
-  img_path = "C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\images"
+  img_path = "/home/aniket/part-iv-project/face-recognition/images"
   files = os.listdir(img_path)
   faces = {}
 
