@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 
 from tensorflow.keras.models import Model, Sequential
@@ -63,6 +64,9 @@ def load_network():
   return model
 
 def load_network_optimised():
-	interpreter = tf.lite.Interpreter("/home/aniket/part-iv-project/face-recognition/vgg_face/optimised_model")
+	if os.name == "posix":
+		interpreter = tf.lite.Interpreter("/home/aniket/part-iv-project/face-recognition/vgg_face/optimised_model")
+	elif os.name == "nt":
+		interpreter = tf.lite.Interpreter("C:\\Users\\aniket\\Desktop\\part-iv-project\\vgg_face\\optimised_model")
 	interpreter.allocate_tensors()
 	return interpreter
