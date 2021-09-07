@@ -1,8 +1,10 @@
 # imports
+from operator import sub
 import os
 import cv2
 import time
 import datetime
+from imutils import video
 import numpy as np
 import tensorflow as tf
 import multiprocessing as mp
@@ -11,24 +13,24 @@ import matplotlib.pyplot as plt
 from imutils.video import VideoStream
 from vgg_face.vgg_face_network import load_network_optimised
 from vgg_face.face_detector_opencv import detect_faces_cv
-from vgg_face.face_verification_optimised import init, embedding, compare
+from vgg_face.face_verification_optimised import init, embedding, compare, write_database
 
 def nbytes(arr):
   return arr.nbytes
 
-def face_recognition(fr_result, cropped_frame):
+def face_recognition(fr_result, cropped_frame, kill_signal):
   # vars
   VGG_Face = load_network_optimised()
-  last_save = 0
+  last_save = 0.0
   last_face = embedding(np.zeros((224,224,3)), VGG_Face)
   recognised = False
 
   # initialise
-  faces = init(VGG_Face)
+  faces = init()
+  faces_old = init()
 
-  while True:
+  while kill_signal.empty():
     face = cropped_frame.get()
-    face_img = face.copy();
 
     f_rec = time.time()
     face = embedding(face, VGG_Face)
@@ -43,16 +45,24 @@ def face_recognition(fr_result, cropped_frame):
       if last_save > (last_save + 300):
         # if person is the same as last time, and its been 5 mins
         # update the last "seen" date and move on
+        del faces[last_save]
         last_save = time.time()
         last_face = face
+        faces[last_save] = last_face
     else:
       for t_stamp, f_emb in faces.items():
+        t_stamp = float(t_stamp)
         if compare(face, f_emb):
           text = f"Last seen at {str(datetime.datetime.fromtimestamp(t_stamp))[:-10]}"
           last_face = f_emb
           recognised = True
           last_save = t_stamp
           print("recognised from embeddings")
+
+          if t_stamp > (t_stamp + 300):
+            faces[time.time()] = face
+            del faces[t_stamp]
+
           break
       
       if not(recognised):
@@ -60,14 +70,15 @@ def face_recognition(fr_result, cropped_frame):
         text = "Unrecognised - never seen before."
         last_save = time.time()
         last_face = face
-        if os.name == 'posix':
-          f_name = f"/home/aniket/part-iv-project/face-recognition/images/{last_save}.png"
-        elif os.name == 'nt':
-          f_name = f"C:\\Users\\aniket\\Desktop\\part-iv-project\\images\\{last_save}.png"
-        plt.imsave(f_name, face_img)
+        faces[last_save] = face
 
     recognised = False
     fr_result.put(text)
+    if faces_old != faces:
+      print("Writing faces to database now...")
+      write_database(faces)
+      faces_old = faces
+      print("Database write complete!")
 
 
 ##### MAIN PROGRAM LOOP #######
@@ -88,9 +99,12 @@ if __name__ == "__main__":
     faceCascade = cv2.CascadeClassifier("/home/aniket/part-iv-project/face-recognition/vgg_face/cascade.xml")
   elif os.name == 'nt':
     # open video stream - windows
+    vid_time = time.time()
     print("Starting video stream...")
-    video_cap = VideoStream(src=0).start();
-    print("Video stream started")
+    video_cap = VideoStream(src=0)
+    video_cap.start()
+    end_time = time.time()
+    print(f"Video stream started - took {end_time-vid_time}s")
     faceCascade = cv2.CascadeClassifier("C:\\Users\\aniket\\Desktop\\part-iv-project\\cascade.xml")
   
   # vars
@@ -100,9 +114,10 @@ if __name__ == "__main__":
   # shared queues for multiprocessing
   fr_result = mp.Queue(1)
   cropped_frame = mp.Queue(1)
+  kill_signal = mp.Queue()
 
   # sub-process
-  sub_process = mp.Process(target=face_recognition, args=(fr_result, cropped_frame))
+  sub_process = mp.Process(target=face_recognition, args=(fr_result, cropped_frame, kill_signal))
   sub_process.start()
 
   while True:
@@ -145,6 +160,7 @@ if __name__ == "__main__":
   video_cap.stop()
   cv2.destroyAllWindows()
   print("Killing sub-process 1")
+  kill_signal.put(True)
   sub_process.kill()
+  sub_process.close()
   print("Sub process 1 killed. Exiting.")
-  exit()

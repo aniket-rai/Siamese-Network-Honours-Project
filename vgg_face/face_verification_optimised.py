@@ -1,22 +1,28 @@
 import os
+import json
 
 from vgg_face.data_processing import preprocess
 from vgg_face.cosine_distance import find_cosine_distance
 
-def init(model):
+def init():
   if os.name == 'posix':
-    img_path = "/home/aniket/part-iv-project/face-recognition/images"
+    database = "/home/aniket/part-iv-project/face-recognition/faces.json"
   elif os.name == 'nt':
-    img_path = "C:\\Users\\aniket\\Desktop\\part-iv-project\\images"
-  files = os.listdir(img_path)
-  faces = {}
+    database = "C:\\Users\\aniket\\Desktop\\part-iv-project\\faces.json"
 
-  for file in files:
-    timestamp = float(file[:-4])
-    file = f"{img_path}/{file}"
-    faces[timestamp] = embedding(file, model)
-
+  with open(database, 'r') as db_file:
+    faces = json.load(db_file)
+  
   return faces
+
+def write_database(faces):
+  if os.name == 'posix':
+    database = "/home/aniket/part-iv-project/face-recognition/faces.json"
+  elif os.name == 'nt':
+    database = "C:\\Users\\aniket\\Desktop\\part-iv-project\\faces.json"
+
+  with open(database, 'w') as db_file:
+    json.dump(faces, db_file)
 
 def embedding(img, interpreter):
   input_details = interpreter.get_input_details()
