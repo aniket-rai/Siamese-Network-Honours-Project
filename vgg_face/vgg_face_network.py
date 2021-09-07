@@ -53,19 +53,19 @@ def VGGFace():
 	return model
 
 def load_network():
-  weights_path = "C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\vgg_face\\vgg_face.h5"
+  weights_path = "C:\\Users\\aniket\\Desktop\\part-iv-project\\vgg_face\\vgg_face.h5"
 
   base_model = VGGFace()
   base_model.load_weights(weights_path)
 
   model = Model(inputs=base_model.layers[0].input, outputs=base_model.layers[-2].output)
-  model.save('C:\\Users\\aniket\\Desktop\\part-iv-project\\face-recognition\\vgg_face\\saved_model')
+  model.save('C:\\Users\\aniket\\Desktop\\part-iv-project\\vgg_face\\saved_model')
 
   return model
 
 def load_network_optimised():
 	if os.name == "posix":
-		interpreter = tf.lite.Interpreter("/home/aniket/part-iv-project/face-recognition/vgg_face/optimised_model")
+		interpreter = tf.lite.Interpreter("/home/aniket/part-iv-project/vgg_face/optimised_model")
 	elif os.name == "nt":
 		interpreter = tf.lite.Interpreter("C:\\Users\\aniket\\Desktop\\part-iv-project\\vgg_face\\optimised_model")
 	interpreter.allocate_tensors()

@@ -94,9 +94,9 @@ if __name__ == "__main__":
     tf.config.experimental.set_virtual_device_configuration(device[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
     # open video stream - linux
     print("Starting video stream...")
-    video_cap = VideoStream(src=1).start();
+    video_cap = VideoStream(src=0).start();
     print("Video stream started")
-    faceCascade = cv2.CascadeClassifier("/home/aniket/part-iv-project/face-recognition/vgg_face/cascade.xml")
+    faceCascade = cv2.CascadeClassifier("/home/aniket/part-iv-project/vgg_face/cascade.xml")
   elif os.name == 'nt':
     # open video stream - windows
     vid_time = time.time()

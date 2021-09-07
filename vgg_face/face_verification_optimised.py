@@ -6,7 +6,7 @@ from vgg_face.cosine_distance import find_cosine_distance
 
 def init():
   if os.name == 'posix':
-    database = "/home/aniket/part-iv-project/face-recognition/faces.json"
+    database = "/home/aniket/part-iv-project/faces.json"
   elif os.name == 'nt':
     database = "C:\\Users\\aniket\\Desktop\\part-iv-project\\faces.json"
 
@@ -17,7 +17,7 @@ def init():
 
 def write_database(faces):
   if os.name == 'posix':
-    database = "/home/aniket/part-iv-project/face-recognition/faces.json"
+    database = "/home/aniket/part-iv-project/faces.json"
   elif os.name == 'nt':
     database = "C:\\Users\\aniket\\Desktop\\part-iv-project\\faces.json"
 
