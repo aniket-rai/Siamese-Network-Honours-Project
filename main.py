@@ -42,7 +42,7 @@ def face_recognition(fr_result, cropped_frame, kill_signal):
       print("recognised from last face")
       times = datetime.datetime.fromtimestamp(last_save)
       text = f"Last seen at {str(times)[:-10]}"
-      if last_save > (last_save + 300):
+      if last_save > (last_save + 600):
         # if person is the same as last time, and its been 5 mins
         # update the last "seen" date and move on
         del faces[last_save]
@@ -59,7 +59,7 @@ def face_recognition(fr_result, cropped_frame, kill_signal):
           last_save = t_stamp
           print("recognised from embeddings")
 
-          if t_stamp > (t_stamp + 300):
+          if t_stamp > (t_stamp + 600):
             faces[time.time()] = face
             del faces[t_stamp]
 
