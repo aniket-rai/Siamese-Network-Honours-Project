@@ -1,5 +1,4 @@
 # imports
-from operator import sub
 import os
 import cv2
 import time
@@ -21,7 +20,7 @@ def nbytes(arr):
 def face_recognition(fr_result, cropped_frame, kill_signal):
   # vars
   VGG_Face = load_network_optimised()
-  last_save = 0.0
+  last_save = "0.0"
   last_face = embedding(np.zeros((224,224,3)), VGG_Face)
   recognised = False
 
@@ -39,28 +38,33 @@ def face_recognition(fr_result, cropped_frame, kill_signal):
     print(f"Face Recognition time: {f_rec_c-f_rec}")
     
     if result:
+      # if recognised from last face seen
       print("recognised from last face")
-      times = datetime.datetime.fromtimestamp(last_save)
+      times = datetime.datetime.fromtimestamp(float(last_save))
       text = f"Last seen at {str(times)[:-10]}"
-      if time.time() > (last_save + 600):
+      if time.time() > (float(last_save) + 600):
         # if person is the same as last time, and its been 10 mins
         # update the last "seen" date and move on
         print("overwriting timestamp and face with new timestamp but in last save workflow")
         del faces[last_save]
-        last_save = time.time()
+        last_save = str(time.time())
         last_face = face
         faces[last_save] = last_face
     else:
+      # compare face to all stored faces
       for t_stamp, f_emb in faces.items():
         float_t_stamp = float(t_stamp)
         if compare(face, f_emb):
+          # if successful then set as last face and return correct text display
           text = f"Last seen at {str(datetime.datetime.fromtimestamp(float_t_stamp))[:-10]}"
           last_face = f_emb
           recognised = True
-          last_save = float_t_stamp
+          last_save = t_stamp
           print("recognised from embeddings")
 
           if time.time() > (float_t_stamp + 600):
+            # if face stored is over 10 minutes old then restore that face with new
+            # time stamp
             print("overwriting timestamp and face with new timestamp")
             faces[time.time()] = face
             del faces[t_stamp]
@@ -68,6 +72,7 @@ def face_recognition(fr_result, cropped_frame, kill_signal):
           break
       
       if not(recognised):
+        # if not recognised
         print("unrecognised")
         text = "Unrecognised - never seen before."
         last_save = time.time()
@@ -77,6 +82,7 @@ def face_recognition(fr_result, cropped_frame, kill_signal):
     recognised = False
     fr_result.put(text)
     if faces_old != faces:
+      # only write to data file if there is a diff
       print("Writing faces to database now...")
       write_database(faces)
       faces_old = faces
@@ -119,7 +125,7 @@ if __name__ == "__main__":
   cropped_frame = mp.Queue(1)
   kill_signal = mp.Queue()
 
-  # sub-process
+  # sub-process admin
   sub_process = mp.Process(target=face_recognition, args=(fr_result, cropped_frame, kill_signal))
   sub_process.start()
 
@@ -142,10 +148,10 @@ if __name__ == "__main__":
     # If no face is detected for 30 frames
     if no_face > 30:
       text = "No face detected!"
+    
     # GET TEXT FROM FACE RECOGNITION SUB PROCESS
     if not(fr_result.empty()):
       text = str(fr_result.get())
-
 
     # ADD TEXT ON FRAME TO DISPLAY
     (text_width, text_height) = cv2.getTextSize(text, font, fontScale=font_scale, thickness=1)[0]
@@ -167,6 +173,5 @@ if __name__ == "__main__":
   cv2.destroyAllWindows()
   print("Killing sub-process 1")
   kill_signal.put(True)
-  sub_process.kill()
-  sub_process.close()
+  sub_process.terminate()
   print("Sub process 1 killed. Exiting.")
