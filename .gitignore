@@ -133,3 +133,9 @@ dmypy.json
 .vscode/settings.json
 *.jpg
 .DS_Store
+vgg_face/optimised_model
+vgg_face/vgg_face.h5
+vgg_face/saved_model/keras_metadata.pb
+vgg_face/saved_model/saved_model.pb
+vgg_face/saved_model/variables/variables.data-00000-of-00001
+vgg_face/saved_model/variables/variables.index
