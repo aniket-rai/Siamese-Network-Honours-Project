@@ -42,24 +42,26 @@ def face_recognition(fr_result, cropped_frame, kill_signal):
       print("recognised from last face")
       times = datetime.datetime.fromtimestamp(last_save)
       text = f"Last seen at {str(times)[:-10]}"
-      if last_save > (last_save + 600):
-        # if person is the same as last time, and its been 5 mins
+      if time.time() > (last_save + 600):
+        # if person is the same as last time, and its been 10 mins
         # update the last "seen" date and move on
+        print("overwriting timestamp and face with new timestamp but in last save workflow")
         del faces[last_save]
         last_save = time.time()
         last_face = face
         faces[last_save] = last_face
     else:
       for t_stamp, f_emb in faces.items():
-        t_stamp = float(t_stamp)
+        float_t_stamp = float(t_stamp)
         if compare(face, f_emb):
-          text = f"Last seen at {str(datetime.datetime.fromtimestamp(t_stamp))[:-10]}"
+          text = f"Last seen at {str(datetime.datetime.fromtimestamp(float_t_stamp))[:-10]}"
           last_face = f_emb
           recognised = True
-          last_save = t_stamp
+          last_save = float_t_stamp
           print("recognised from embeddings")
 
-          if t_stamp > (t_stamp + 600):
+          if time.time() > (float_t_stamp + 600):
+            print("overwriting timestamp and face with new timestamp")
             faces[time.time()] = face
             del faces[t_stamp]
 
@@ -70,7 +72,7 @@ def face_recognition(fr_result, cropped_frame, kill_signal):
         text = "Unrecognised - never seen before."
         last_save = time.time()
         last_face = face
-        faces[last_save] = face
+        faces[str(last_save)] = face
 
     recognised = False
     fr_result.put(text)
@@ -110,6 +112,7 @@ if __name__ == "__main__":
   # vars
   text = "Initialising..."
   coords = [10, 30]
+  no_face = 0
 
   # shared queues for multiprocessing
   fr_result = mp.Queue(1)
@@ -129,13 +132,20 @@ if __name__ == "__main__":
 
     # SEND FRAME TO SUB PROCESS
     if len(faces_cropped) > 0:
+      no_face = 0
       if (not(cropped_frame.empty())):
         cropped_frame.get()
       cropped_frame.put(faces_cropped[0])
-
+    else:
+      no_face += 1
+	
+    # If no face is detected for 30 frames
+    if no_face > 30:
+      text = "No face detected!"
     # GET TEXT FROM FACE RECOGNITION SUB PROCESS
     if not(fr_result.empty()):
       text = str(fr_result.get())
+
 
     # ADD TEXT ON FRAME TO DISPLAY
     (text_width, text_height) = cv2.getTextSize(text, font, fontScale=font_scale, thickness=1)[0]
@@ -144,10 +154,6 @@ if __name__ == "__main__":
     box_coords = ((text_offset_x, text_offset_y), (text_offset_x + text_width + 2, text_offset_y - text_height - 2))
     cv2.rectangle(frame, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
     cv2.putText(frame, text, (10, 30), font, fontScale=font_scale, color=(0, 255, 124), thickness=1)
-
-    # END TO END TIME
-    f_end = time.time()
-    cv2.putText(frame, str(f_end - f_start)[:5], (10,30), font, font_scale, (0,0,0))
     
     # display frame
     cv2.imshow("Face", frame)
